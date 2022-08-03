@@ -1,0 +1,27 @@
+{
+  "name": "qna_service",
+  "version": "1.0.0",
+  "description": "microservice for system design capstone based on lexicon front end capstone (question and answer module)",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest",
+    "start": "nodemon server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpp36-sdc-switch/rpp36-Filimon-qna.git"
+  },
+  "author": "FKiros",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rpp36-sdc-switch/rpp36-Filimon-qna/issues"
+  },
+  "homepage": "https://github.com/rpp36-sdc-switch/rpp36-Filimon-qna#readme",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "jest": "^28.1.3",
+    "nodemon": "^2.0.19",
+    "supertest": "^6.2.4"
+  }
+}
