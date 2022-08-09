@@ -1,4 +1,5 @@
 const { Client } = require("pg");
+const fs = require("fs");
 
 const db = new Client({
   host: "localhost",
@@ -10,36 +11,17 @@ const db = new Client({
 
 db.connect();
 
-db.query("select * from questions", (err, res) => {
-  if (err) console.log("ERRRR", err);
-  else console.log("RESSS,", res);
-  db.end;
-});
-
-// ===============================================================
-/*
-Insatallation and startup
-- installed using installer from https://www.postgresql.org/download/macosx/
-- set path in main Library (Go->Computer->macintosh->library->)
-Filimons-MacBook-Pro:database filimonkiros$ export PATH=/Library/PostgreSQL/14/bin:$PATH
-
-- manually created SDC_QnA database in pgAdmin 4 GUI
-- installed 'pg' package in SDC repo: see guide: https://node-postgres.com/features/connecting
-
-- open postgres (from within SDC-service/database folder) and execute schema
-Filimons-MacBook-Pro:database filimonkiros$ psql --host=localhost --dbname=SDC_QnA --username=postgres
-Password for user postgres: root
-psql (14.4)
-Type "help" for help.
-
-SDC_QnA=# \i postgres_schema.sql
-
--to see tables:
-SDC_QnA=# \dt
-
--to quit:
-SDC_QnA=# \q
-
-- to run db js:
-- Filimons-MacBook-Pro:SDC-service filimonkiros$ node database/postgresDB.js
-*/
+/* ======= TO READ DATA BY CHUNK ============
+const CHUNK_SIZE = 10000000; // 10000000=10MB
+async function dataReader() {
+  const stream = fs.createReadStream(
+    "/Users/filimonkiros/HackReactor/RPP36/Weeks_Aug1_Sep24/QnAData/answers_photos.csv",
+    { highWaterMark: CHUNK_SIZE }
+    // { start: 17, end: 256 }
+  );
+  for await (const data of stream) {
+    console.log(" ===== DATA ==== ", data.toString().split(/[\n,]+/));
+  }
+}
+dataReader();
+===========================================*/
