@@ -14,3 +14,4 @@ create table answers (
   id int not null,
   primary key (id)
 );
+
