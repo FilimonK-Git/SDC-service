@@ -1,27 +1,30 @@
 const { Client } = require("pg");
 const fs = require("fs");
+require("dotenv").config();
+const dbpassword = process.env.dbPass;
+const dbName = process.env.dbName;
 
 const db = new Client({
   host: "localhost",
   user: "postgres",
   port: 5432,
-  password: "root",
-  database: "SDC_QnA",
+  password: `${dbpassword}`,
+  database: `${dbName}`,
 });
 
 db.connect();
 
-/* ======= TO READ DATA BY CHUNK ============
-const CHUNK_SIZE = 10000000; // 10000000=10MB
-async function dataReader() {
-  const stream = fs.createReadStream(
-    "/Users/filimonkiros/HackReactor/RPP36/Weeks_Aug1_Sep24/QnAData/answers_photos.csv",
-    { highWaterMark: CHUNK_SIZE }
-    // { start: 17, end: 256 }
-  );
-  for await (const data of stream) {
-    console.log(" ===== DATA ==== ", data.toString().split(/[\n,]+/));
-  }
-}
-dataReader();
-===========================================*/
+// query db for specific product id
+var productID = 10;
+var query = `Select * from questions where product_id=${productID}`;
+const searchDB = (cb) => {
+  db.query(query, (err, res) => {
+    if (err) {
+      cb(err);
+    } else {
+      cb(null, res);
+    }
+  });
+};
+
+module.exports.searchDB = searchDB;

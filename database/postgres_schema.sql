@@ -38,4 +38,9 @@ CREATE TABLE answers_photos (
 
 \COPY answers_photos(id,answer_id,url) FROM '/Users/filimonkiros/HackReactor/RPP36/Weeks_Aug1_Sep24/QnAData/answers_photos.csv' DELIMITER ',' CSV HEADER;
 
+CREATE INDEX questions_id_index ON questions (product_id);
+CREATE INDEX answers_id_index ON answers (question_id);
+CREATE INDEX answersPhotos_id_index ON answers_photos (answer_id);
 
+
+-- reseach indexing
