@@ -76,19 +76,61 @@ const findQnA = (productID, cb) => {
         }
       }
       cb(null, QnAData);
+      // db.end();
     }
   });
 };
 
-const addQuestion = (questionInfo) => {
+const addQuestion = (questionInfo, cb) => {
   /* questionInfo = {
       body: 'mmm',
       name: 'fff111',
       email: 'fff@gmail.com',
       product_id: 71697
   }*/
-  // create db.query with insert into questions table
+
+  questionInfo = questionInfo.questionInfo;
+
+  let timeOfClick = new Date().toLocaleString("en-US", {
+    hour12: false,
+  });
+
+  let previousQuestionId;
+  let questionIDquery = `Select Last(question_id) from questions`;
+  db.query(questionIDquery)
+    .then((result) => {
+      // console.log("mmm", result);
+      previousQuestionId = result.rows[0].max;
+
+      let nextNewId = previousQuestionId + 1;
+      return nextNewId;
+    })
+    .then((nextNewId) => {
+      // console.log("bbb", result);
+      let query = `
+      Insert into questions (question_id, product_id,
+        question_body,question_date,
+        asker_name, asker_email,
+        reported,question_helpfulness)
+          VALUES (${nextNewId}, ${questionInfo.product_id}, '${
+        questionInfo.body
+      }', '${123456789}', '${questionInfo.name}',
+                  '${questionInfo.email}', false, 0);`;
+
+      db.query(query)
+        .then((result) => {
+          console.log("Posted");
+        })
+        .catch((err) => {
+          console.log("Error posting", err);
+          cb(err);
+        });
+      // .then(() => db.end());
+    })
+    // .then(() => db.end())
+    .catch((err) => console.log("Err fecthing highest question Id: ", err));
 };
+// addQuestion();
 
 const addAnswer = (answerInfo, questionID) => {
   /* answerInfo = {
@@ -116,6 +158,7 @@ const reportAnswer = (answerID) => {
   // create db.query ... change report bool
 };
 
+module.exports.db = db;
 module.exports.findQnA = findQnA;
 module.exports.addQuestion = addQuestion;
 module.exports.addAnswer = addAnswer;

@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/qa/questions", (req, res) => {
   db.findQnA(req.query.productId, (err, result) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
       res.status(200).json({ results: result });
     }
@@ -19,9 +19,10 @@ app.get("/qa/questions", (req, res) => {
 
 // post a questions
 app.post("/qa/questions", (req, res) => {
+  // console.log("hittt", req.body);
   db.addQuestion(req.body, (err) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
       res.status(200).send({ SuccessMsg: "Question posted!" });
     }
@@ -32,7 +33,7 @@ app.post("/qa/questions", (req, res) => {
 app.post("/qa/questions/:question_id/answers", (req, res) => {
   db.addAnswer(req.body, req.params.question_id, (err) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
       res.status(201).send({ SuccessMsg: "Answer posted!" });
     }
@@ -43,7 +44,7 @@ app.post("/qa/questions/:question_id/answers", (req, res) => {
 app.put("/qa/questions/:question_id/helpful", (req, res) => {
   db.helpfulQuestion(req.params.question_id, (err) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
       res.status(204).send({ SuccessMsg: "Question marked helpful!" });
     }
@@ -54,7 +55,7 @@ app.put("/qa/questions/:question_id/helpful", (req, res) => {
 app.put("/qa/answers/:answer_id/helpful", (req, res) => {
   db.helpfulAnswer(req.params.answer_id, (err) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
       res.status(204).send({ SuccessMsg: "Answer marked helpful!" });
     }
@@ -65,7 +66,7 @@ app.put("/qa/answers/:answer_id/helpful", (req, res) => {
 app.put("/qa/questions/:question_id/report", (req, res) => {
   db.reportQuestion(req.params.question_id, (err) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
       res.status(204).send({ SuccessMsg: "Question reported!" });
     }
@@ -76,7 +77,7 @@ app.put("/qa/questions/:question_id/report", (req, res) => {
 app.put("/qa/answers/:answer_id/report", (req, res) => {
   db.reportAnswer(req.params.answer_id, (err) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
       res.status(204).send({ SuccessMsg: "Answer reported!" });
     }
@@ -89,8 +90,8 @@ app.post("/qna", (req, res) => {
 });
 */
 
-app.listen(port, (req, res) => {
-  console.log(`Port ${port}: Listening ... `);
-});
+// app.listen(port, (req, res) => {
+//   console.log(`Port ${port}: Listening ... `);
+// });
 
-// module.exports = app;
+module.exports = app;
