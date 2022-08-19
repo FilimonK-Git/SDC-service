@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/qa/questions", (req, res) => {
   db.findQnA(req.query.productId, (err, result) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
       res.status(200).json({ results: result });
     }
@@ -19,20 +19,20 @@ app.get("/qa/questions", (req, res) => {
 
 // post a questions
 app.post("/qa/questions", (req, res) => {
-  db.addQuestion(req.body, (err) => {
+  db.addQuestion(req.body, (err, result) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
-      res.status(200).send({ SuccessMsg: "Question posted!" });
+      res.status(201).json({ SuccessMsg: "Question posted!" });
     }
   });
 });
 
 // post an answer
 app.post("/qa/questions/:question_id/answers", (req, res) => {
-  db.addAnswer(req.body, req.params.question_id, (err) => {
+  db.addAnswer(req.body, req.params.question_id, (err, result) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
       res.status(201).send({ SuccessMsg: "Answer posted!" });
     }
@@ -41,56 +41,39 @@ app.post("/qa/questions/:question_id/answers", (req, res) => {
 
 // mark a question helpful
 app.put("/qa/questions/:question_id/helpful", (req, res) => {
-  db.helpfulQuestion(req.params.question_id, (err) => {
+  db.helpfulQuestion(req.params.question_id, (err, result) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
-      res.status(204).send({ SuccessMsg: "Question marked helpful!" });
+      res.status(204).end();
     }
   });
 });
 
 // mark an answer helpful
 app.put("/qa/answers/:answer_id/helpful", (req, res) => {
-  db.helpfulAnswer(req.params.answer_id, (err) => {
+  db.helpfulAnswer(req.params.answer_id, (err, result) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
-      res.status(204).send({ SuccessMsg: "Answer marked helpful!" });
-    }
-  });
-});
-
-// report a question
-app.put("/qa/questions/:question_id/report", (req, res) => {
-  db.reportQuestion(req.params.question_id, (err) => {
-    if (err) {
-      res.status(500).send(error).end();
-    } else {
-      res.status(204).send({ SuccessMsg: "Question reported!" });
+      res.status(204).end();
     }
   });
 });
 
 // report an answer
 app.put("/qa/answers/:answer_id/report", (req, res) => {
-  db.reportAnswer(req.params.answer_id, (err) => {
+  db.reportAnswer(req.params.answer_id, (err, result) => {
     if (err) {
-      res.status(500).send(error).end();
+      res.status(500).send(err).end();
     } else {
-      res.status(204).send({ SuccessMsg: "Answer reported!" });
+      res.status(204).end();
     }
   });
 });
 
-/* FOR JEST INITIAL TEST
-app.post("/qna", (req, res) => {
-  res.json({ postQnA: "QnA post req test log" });
-});
-*/
+// app.listen(port, (req, res) => {
+//   console.log(`Port ${port}: Listening ... `);
+// });
 
-app.listen(port, (req, res) => {
-  console.log(`Port ${port}: Listening ... `);
-});
-
-// module.exports = app;
+module.exports = app;
