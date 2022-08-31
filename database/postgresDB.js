@@ -13,7 +13,14 @@ const db = new Client({
   database: `${dbName}`,
 });
 
-db.connect();
+// db.connect();
+db.connect((err) => {
+  if (err) {
+    console.error("connection error", err.stack);
+  } else {
+    // console.log("connected");
+  }
+});
 
 const findQnA = (productID, cb) => {
   let findQnAquery = `Select

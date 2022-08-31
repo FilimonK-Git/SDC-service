@@ -72,8 +72,8 @@ app.put("/qa/answers/:answer_id/report", (req, res) => {
   });
 });
 
-// app.listen(port, (req, res) => {
-//   console.log(`Port ${port}: Listening ... `);
-// });
+app.listen(port, (req, res) => {
+  console.log(`Port ${port}: Listening ... `);
+});
 
 module.exports = app;
