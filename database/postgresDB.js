@@ -82,6 +82,7 @@ const findQnA = (productID, cb) => {
           }
         }
       }
+
       cb(null, QnAData);
     }
   });
@@ -89,19 +90,13 @@ const findQnA = (productID, cb) => {
 
 const addQuestion = (questionInfo, cb) => {
   let timeQuestionAsked = new Date().toISOString();
-
-  let questionIDquery = `SELECT question_id	FROM questions order by question_id desc limit 1`;
-  db.query(questionIDquery)
-    .then((result) => {
-      let previousQuestionId = result.rows[0].question_id;
-      let nextNewQuestionId = previousQuestionId + 1;
-      return nextNewQuestionId;
-    })
-    .then((nextNewQuestionId) => {
+  let nextQuestionIDquery = `SELECT nextval('qSeq')`;
+  db.query(nextQuestionIDquery)
+    .then((nextQuestionID) => {
       let addQuestionQuery = `
       Insert into questions (question_id, product_id, question_body,question_date,
         asker_name, asker_email,reported,question_helpfulness)
-          VALUES (${nextNewQuestionId}, ${questionInfo.product_id}, '${questionInfo.body}', '${timeQuestionAsked}', '${questionInfo.name}','${questionInfo.email}', false, 0)`;
+          VALUES (${nextQuestionID.rows[0].nextval}, ${questionInfo.product_id}, '${questionInfo.body}', '${timeQuestionAsked}', '${questionInfo.name}','${questionInfo.email}', false, 0)`;
 
       db.query(addQuestionQuery)
         .then((result) => {
@@ -117,61 +112,71 @@ const addQuestion = (questionInfo, cb) => {
 const addAnswer = (answerInfo, questionID, cb) => {
   let timeAnswerPosted = new Date().toISOString();
 
-  let answerIDquery = `SELECT answer_id	FROM answers order by answer_id desc limit 1`;
-  db.query(answerIDquery)
-    .then((dbAnswerIDresult) => {
-      let previousAnswerId = dbAnswerIDresult.rows[0].answer_id;
-      let nextNewAnswerId = previousAnswerId + 1;
-      return nextNewAnswerId;
-    })
-    .then((nextNewAnswerId) => {
+  let nextAnswerIDquery = `SELECT nextval('aSeq')`;
+
+  db.query(nextAnswerIDquery)
+
+    .then((nextAnswerID) => {
       let addAnswerQuery = `
       Insert into answers (answer_id, question_id, body,date,
         answerer_name, answerer_email,reported,helpful)
-          VALUES (${nextNewAnswerId}, ${questionID}, '${answerInfo.body}',
+          VALUES (${nextAnswerID.rows[0].nextval}, ${questionID}, '${answerInfo.body}',
           '${timeAnswerPosted}', '${answerInfo.name}','${answerInfo.email}', false, 0)`;
 
       db.query(addAnswerQuery)
         .then((answerInsertionResult) => {
           if (answerInfo.photos.length !== 0) {
-            let photoIDquery = `SELECT id	FROM answers_photos order by id desc limit 1`;
-            db.query(photoIDquery)
-              .then((dbPhotoIDresult) => {
-                let previousPhotoId = dbPhotoIDresult.rows[0].id;
-                let nextNewPhotoId = previousPhotoId + 1;
-                return nextNewPhotoId;
-              })
-              .then((nextNewPhotoId) => {
-                let promisesArrary = [];
+            let promisesArrary = [];
 
-                for (let i = 0; i < answerInfo.photos.length; i++) {
-                  promisesArrary.push(
-                    new Promise((resolve, reject) => {
-                      let addPhotoQuery = `Insert into answers_photos (id, answer_id, url) VALUES (${nextNewPhotoId}, ${nextNewAnswerId}, '${answerInfo.photos[i]}')`;
+            for (let i = 0; i < answerInfo.photos.length; i++) {
+              promisesArrary.push(
+                new Promise((resolve, reject) => {
+                  let nextPhotoIDquery = `SELECT nextval('pSeq')`;
+
+                  db.query(nextPhotoIDquery)
+
+                    .then((nextPhotoID) => {
+                      let addPhotoQuery = `Insert into answers_photos (id, answer_id, url) VALUES (${nextPhotoID.rows[0].nextval}, ${nextAnswerID.rows[0].nextval}, '${answerInfo.photos[i]}')`;
+
                       db.query(addPhotoQuery, (err, result) => {
                         if (err) {
-                          reject(err);
+                          console.log("REJJ", err.detail);
+                          // reject(err);
                         } else {
-                          resolve(result);
+                          resolve(result); // OR setval and resolve ??
+
+                          // db.query(
+                          //   `SELECT setval('pSeq', max(id)) FROM answers_photos;`
+                          // )
+                          //   .then((res) => {
+                          //     // resolve(result);
+                          //   })
+                          //   .catch((err) => {
+                          //     console.log("errSET PROMIzz", err);
+                          //   });
                         }
                       });
                     })
-                  );
-                  nextNewPhotoId++;
-                }
-                Promise.all(promisesArrary).then((values) => {
-                  cb(null, answerInsertionResult);
-                });
-              })
-              .catch((err) => cb(err));
+                    .catch((err) => cb(err));
+                })
+              );
+              // nextNewPhotoId++;
+            }
+            return promisesArrary;
           } else {
             cb(null, answerInsertionResult);
           }
+        })
+        .then((promisesArrary) => {
+          Promise.all(promisesArrary).then((answerInsertionResult) => {
+            cb(null, answerInsertionResult);
+          });
         })
         .catch((err) => {
           cb(err);
         });
     })
+
     .catch((err) => cb(err));
 };
 

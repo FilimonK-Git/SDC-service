@@ -16,6 +16,13 @@ ALTER TABLE questions ALTER reported TYPE BOOLEAN USING CASE WHEN reported=1 THE
 ALTER TABLE questions ALTER COLUMN question_date TYPE DATE USING to_timestamp(question_date::bigint/1000);
 CREATE INDEX questions_prodId_index ON questions (product_id);
 CREATE INDEX questions_questId_index ON questions (question_id);
+DROP SEQUENCE qSeq;
+CREATE SEQUENCE qSeq;
+SELECT setval('qSeq', max(question_id)) FROM questions;
+
+
+
+
 
 drop table if exists answers cascade;
 CREATE TABLE answers (
@@ -35,6 +42,12 @@ ALTER TABLE answers ALTER reported TYPE BOOLEAN USING CASE WHEN reported=1 THEN 
 ALTER TABLE answers ALTER COLUMN date TYPE DATE USING to_timestamp(date::bigint/1000);
 CREATE INDEX answers_id_index ON answers (question_id);
 CREATE INDEX answers_answId_index ON answers (answer_id);
+DROP SEQUENCE aSeq;
+CREATE SEQUENCE aSeq;
+SELECT setval('aSeq', max(answer_id)) FROM answers;
+
+
+
 
 
 drop table if exists answers_photos cascade;
@@ -47,4 +60,6 @@ CREATE TABLE answers_photos (
 
 \COPY answers_photos(id,answer_id,url) FROM '/Users/filimonkiros/HackReactor/RPP36/Weeks_Aug1_Sep24/QnAData/answers_photos.csv' DELIMITER ',' CSV HEADER;
 CREATE INDEX answersPhotos_id_index ON answers_photos (answer_id);
-
+DROP SEQUENCE pSeq;
+CREATE SEQUENCE pSeq;
+SELECT setval('pSeq', max(id)) FROM answers_photos;
