@@ -8,6 +8,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Get questions and associated answers
+app.get("/loaderio-e22d0e626e9b9fb69ff8d0c6170671db.txt", (req, res) => {
+  res.send("loaderio-e22d0e626e9b9fb69ff8d0c6170671db");
+  // res.end();
+});
+
+// Get questions and associated answers
 app.get("/qa/questions", (req, res) => {
   db.findQnA(req.query.productId, (err, result) => {
     if (err) {

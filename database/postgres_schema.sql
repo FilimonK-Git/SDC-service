@@ -1,4 +1,7 @@
 
+DROP DATABASE IF EXISTS "SDC_QnA";
+CREATE DATABASE "SDC_QnA";
+
 drop table if exists questions cascade;
 CREATE TABLE questions (
    question_id SERIAL PRIMARY KEY,

@@ -2,12 +2,14 @@ const { Client } = require("pg");
 const Promise = require("bluebird");
 const fs = require("fs");
 require("dotenv").config();
-const dbpassword = process.env.dbPass;
+const dbHost = process.env.ec2Host;
+const dbUser = process.env.dbUser;
+const dbpassword = process.env.ec2DB;
 const dbName = process.env.dbName;
 
 const db = new Client({
-  host: "localhost",
-  user: "postgres",
+  host: `${dbHost}`,
+  user: `${dbUser}`,
   port: 5432,
   password: `${dbpassword}`,
   database: `${dbName}`,
@@ -18,7 +20,7 @@ db.connect((err) => {
   if (err) {
     console.error("connection error", err.stack);
   } else {
-    // console.log("connected");
+    console.log("connected");
   }
 });
 

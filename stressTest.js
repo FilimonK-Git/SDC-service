@@ -1,18 +1,23 @@
 import http from "k6/http";
 import { sleep, check } from "k6";
 
-export const options = {
-  vus: 1000, // corresponds to RPS
-  duration: '2m',
+export const options = { // add ramp up to avoid excess missing reqs (see stages below)
+  vus: 10, // corresponds to RPS
+  duration: '1m',
   thresholds: {
     http_req_duration: ["p(95)<2000"], // 95% of requests must complete below 2s
     http_req_failed: ["rate<0.01"], // http errors should be less than 1%
   },
 };
 
+  // stages: [
+  // { duration: '10s', target: 1},
+  // { duration: '10s', target: 10},
+  // { duration: '10s', target: 100},
+  // { duration: '10s', target: 1000},
+  // { duration: '10s', target: 1}],
+
 export default function () {
-
-
 
   let productId = 1;
   let question_id = 1
@@ -53,9 +58,4 @@ export default function () {
 }
 
 
-  // stages: [
-  // { duration: '10s', target: 1},
-  // { duration: '10s', target: 10},
-  // { duration: '10s', target: 100},
-  // { duration: '10s', target: 1000},
-  // { duration: '10s', target: 1}],
+
