@@ -9,7 +9,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['SDC_node'],
+  app_name: ['SDC_microservice'],
   /**
    * Your New Relic license key.
    */

@@ -1,4 +1,4 @@
-const { Client } = require("pg");
+const { Pool } = require("pg");
 const Promise = require("bluebird");
 const fs = require("fs");
 require("dotenv").config();
@@ -7,7 +7,7 @@ const dbUser = process.env.dbUser;
 const dbpassword = process.env.ec2DB;
 const dbName = process.env.dbName;
 
-const db = new Client({
+const db = new Pool({
   host: `${dbHost}`,
   user: `${dbUser}`,
   port: 5432,
@@ -16,81 +16,43 @@ const db = new Client({
 });
 
 // db.connect();
-db.connect((err) => {
-  if (err) {
-    console.error("connection error", err.stack);
-  } else {
-    console.log("connected");
-  }
-});
 
 const findQnA = (productID, cb) => {
-  let findQnAquery = `Select
-  questions.question_id, questions.question_body, questions.question_date, questions.asker_name, questions.question_helpfulness, questions.reported,
-  answers.answer_id, answers.body, answers.date, answers.answerer_name, answers.reported, answers.helpful, answers_photos.url
-    from questions
-    left join answers on questions.question_id=answers.question_id
-    left join answers_photos on answers.answer_id=answers_photos.answer_id
-    where product_id=${productID}`;
+  let findQnAquery = `SELECT questions.question_id, questions.question_body, questions.question_date, questions.asker_name, questions.question_helpfulness, questions.reported,
+      (SELECT COALESCE(json_agg (eachAnswer), '{}') FROM ( SELECT answers.question_id AS id, answers.body,
+      answers.date, answers.answerer_name, answers.helpful, answers.reported,
+      (SELECT COALESCE(json_agg(eachPhoto), '[]') FROM ( SELECT answers_photos.id, answers_photos.url
+      FROM answers_photos WHERE answers_photos.answer_id = answers.answer_id) eachPhoto) AS photos
+      FROM answers WHERE answers.question_id = questions.question_id) eachAnswer) AS answers FROM questions
+      WHERE product_id = ${productID};`;
 
   db.query(findQnAquery, (err, result) => {
     if (err) {
       cb(err);
     } else {
-      for (let data of result.rows) {
-        let answers = {};
-        answers[data.answer_id] = {
-          id: data.answer_id,
-          body: data.body,
-          date: data.date,
-          answerer_name: data.answerer_name,
-          helpfulness: data.helpful,
-          photos: [data.url],
-        };
-        data.answers = answers;
-        delete data.answer_id;
-        delete data.body;
-        delete data.date;
-        delete data.answerer_name;
-        delete data.helpful;
-        delete data.url;
-      }
-      var uniqueProductIDs = [];
-      var QnAData = [];
-      for (let i = 0; i < result.rows.length; i++) {
-        let data = result.rows[i];
-        if (!uniqueProductIDs.includes(data.question_id)) {
-          QnAData.push(data);
-          uniqueProductIDs.push(data.question_id);
-          delete result.rows[i];
-        }
-      }
-      var dbData = result.rows.flat();
-      for (let i = 0; i < QnAData.length; i++) {
-        let currQnAObj = QnAData[i];
-        for (let j = 0; j < dbData.length; j++) {
-          var nextQnAObj = dbData[j];
-          if (currQnAObj.question_id === nextQnAObj.question_id) {
-            var currkey = Object.keys(currQnAObj.answers);
-            var nextkey = Object.keys(nextQnAObj.answers);
-            if (currkey[0] === nextkey[0]) {
-              var mergedPhotos = currQnAObj.answers[currkey].photos.concat(
-                nextQnAObj.answers[nextkey].photos
-              );
-              currQnAObj.answers[currkey].photos = mergedPhotos;
-            } else {
-              currQnAObj.answers[nextkey[0]] = nextQnAObj.answers[nextkey[0]];
-            }
-          }
-        }
-      }
-
-      cb(null, QnAData);
+      cb(null, result.rows);
     }
   });
 };
 
 const addQuestion = (questionInfo, cb) => {
+  let timeQuestionAsked = new Date().toISOString();
+
+  let addQuestionQuery = `
+      Insert into questions (question_id,product_id, question_body,question_date,
+        asker_name, asker_email,reported,question_helpfulness)
+          VALUES ((SELECT nextval('qSeq')), ${questionInfo.product_id},
+            '${questionInfo.body}', '${timeQuestionAsked}', '${questionInfo.name}',
+            '${questionInfo.email}', false, 0)`;
+
+  db.query(addQuestionQuery)
+    .then((result) => {
+      cb(null, result);
+    })
+    .catch((err) => {
+      cb(err);
+    });
+  /*
   let timeQuestionAsked = new Date().toISOString();
   let nextQuestionIDquery = `SELECT nextval('qSeq')`;
   db.query(nextQuestionIDquery)
@@ -98,7 +60,9 @@ const addQuestion = (questionInfo, cb) => {
       let addQuestionQuery = `
       Insert into questions (question_id, product_id, question_body,question_date,
         asker_name, asker_email,reported,question_helpfulness)
-          VALUES (${nextQuestionID.rows[0].nextval}, ${questionInfo.product_id}, '${questionInfo.body}', '${timeQuestionAsked}', '${questionInfo.name}','${questionInfo.email}', false, 0)`;
+          VALUES (${nextQuestionID.rows[0].nextval}, ${questionInfo.product_id},
+            '${questionInfo.body}', '${timeQuestionAsked}', '${questionInfo.name}',
+            '${questionInfo.email}', false, 0)`;
 
       db.query(addQuestionQuery)
         .then((result) => {
@@ -109,11 +73,30 @@ const addQuestion = (questionInfo, cb) => {
         });
     })
     .catch((err) => cb(err));
+    */
 };
 
 const addAnswer = (answerInfo, questionID, cb) => {
   let timeAnswerPosted = new Date().toISOString();
+  let addAnswerQuery = `
+  Insert into answers (answer_id, question_id, body,date,
+    answerer_name, answerer_email,reported,helpful)
+      VALUES ((SELECT nextval('aSeq')), ${questionID}, '${answerInfo.body}',
+      '${timeAnswerPosted}', '${answerInfo.name}','${answerInfo.email}', false, 0)
+      RETURNING answer_id;`;
 
+  db.query(addAnswerQuery)
+    .then((result) => {
+      // console.log("here DB", result);
+      cb(null, result);
+    })
+    .catch((err) => {
+      cb(err);
+    });
+
+  /*
+
+let timeAnswerPosted = new Date().toISOString();
   let nextAnswerIDquery = `SELECT nextval('aSeq')`;
 
   db.query(nextAnswerIDquery)
@@ -142,8 +125,8 @@ const addAnswer = (answerInfo, questionID, cb) => {
 
                       db.query(addPhotoQuery, (err, result) => {
                         if (err) {
-                          console.log("REJJ", err.detail);
-                          // reject(err);
+                          // console.log("REJJ", err.detail);
+                          reject(err);
                         } else {
                           resolve(result); // OR setval and resolve ??
 
@@ -180,6 +163,22 @@ const addAnswer = (answerInfo, questionID, cb) => {
     })
 
     .catch((err) => cb(err));
+
+    */
+};
+
+const addPhoto = (answer_id, url) => {
+  return new Promise((resolve, reject) => {
+    let addPhotoQuery = `Insert into answers_photos (id, answer_id, url) VALUES ((SELECT nextval('pSeq')), ${answer_id}, '${url}')`;
+
+    db.query(addPhotoQuery)
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 };
 
 const helpfulQuestion = (questionID, cb) => {
@@ -222,6 +221,7 @@ module.exports.db = db;
 module.exports.findQnA = findQnA;
 module.exports.addQuestion = addQuestion;
 module.exports.addAnswer = addAnswer;
+module.exports.addPhoto = addPhoto;
 module.exports.helpfulQuestion = helpfulQuestion;
 module.exports.helpfulAnswer = helpfulAnswer;
 module.exports.reportAnswer = reportAnswer;
