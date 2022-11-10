@@ -59,8 +59,6 @@ export default function () {
   sleep(1);
 }
 
-
-
   // stages: [
   // { duration: '10s', target: 1},
   // { duration: '10s', target: 10},

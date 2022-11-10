@@ -26,7 +26,6 @@ const answerSchema = new mongoose.Schema({
   helpfulness: Number,
   photos: [
     {
-      // embeded schema
       id: Number,
       url: String,
     },
@@ -36,11 +35,3 @@ const answerSchema = new mongoose.Schema({
 const products = mongoose.model("answers", productsSchema);
 const questions = mongoose.model("questions", questionSchema);
 const answers = mongoose.model("answers", answerSchema);
-
-// const photosSchema = new mongoose.Schema({
-//   answer_id: Number, // reference to answers document
-//   id: Number,
-//   url: String,
-// });
-
-// const photos = mongoose.model("answers", photosSchema);

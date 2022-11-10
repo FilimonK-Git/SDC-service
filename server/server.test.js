@@ -59,8 +59,6 @@ describe("QnA microservice functionality", () => {
   });
 
   it("should add a question into questions table", async () => {
-    // should i remove test question after adding... thoughts?? since they are being added into db permanently
-
     let result = await request(app)
       .post("/qa/questions")
       .send({

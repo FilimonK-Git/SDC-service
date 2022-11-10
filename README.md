@@ -1,15 +1,17 @@
 # System Design: Question and Answers API
- > Microservice for front-end e-commerce webiste: https://github.com/rpp36-fec-lexicon/FEC 
- 
- > Enables handling of large scale web traffic load (~3500 RPS)
 
+> Microservice for front-end e-commerce webiste: https://github.com/rpp36-fec-lexicon/FEC
 
-# Presentation slides
-  > https://docs.google.com/presentation/d/1jPnZ500CcZSJOC7SddDmnFkz_yu9IAKb_QGPx7FvieM/edit?usp=sharing
-  
-# Engineering Journal  
-  > https://ionized-stretch-ff3.notion.site/690b828c3d6642148328f56ed3962fa5?v=34b0dff68a7b4916adaba1bcda7129c0
-  
+> Enables handling of large scale web traffic load (~3500 RPS)
+
+## Presentation slides
+
+> https://docs.google.com/presentation/d/1jPnZ500CcZSJOC7SddDmnFkz_yu9IAKb_QGPx7FvieM/edit?usp=sharing
+
+## Engineering Journal
+
+> https://ionized-stretch-ff3.notion.site/690b828c3d6642148328f56ed3962fa5?v=34b0dff68a7b4916adaba1bcda7129c0
+
 ## Tech Stack
 
 ![Node](https://img.shields.io/badge/-Node-9ACD32?logo=node.js&logoColor=white&style=for-the-badge)
@@ -22,7 +24,10 @@
 ![k6](https://img.shields.io/badge/-k6.io-4c00b0?logo=loader.io&logoColor=White&style=for-the-badge)
 ![loader.io](https://img.shields.io/badge/-loader.io-6495ED?logo=loader.io&logoColor=white&style=for-the-badge)
 
-
 ## Database schema
 
 ![DbSchema](https://user-images.githubusercontent.com/81248975/199600733-901bd9da-26ce-4033-8620-e91acd3d1aca.png)
+
+## Scaling Results
+
+### Benchmark results
