@@ -7,6 +7,8 @@
 # Presentation slides
   > https://docs.google.com/presentation/d/1jPnZ500CcZSJOC7SddDmnFkz_yu9IAKb_QGPx7FvieM/edit?usp=sharing
   
+# Engineering Journal  
+  > https://ionized-stretch-ff3.notion.site/690b828c3d6642148328f56ed3962fa5?v=34b0dff68a7b4916adaba1bcda7129c0
   
 ## Tech Stack
 
