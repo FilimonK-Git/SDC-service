@@ -31,3 +31,8 @@
 ## Scaling Results
 
 ### Benchmark results
+
+![benchRes](https://user-images.githubusercontent.com/81248975/201195081-b5f6c963-5253-4ebb-8622-cd60d2e0ffb3.png)
+
+
+
